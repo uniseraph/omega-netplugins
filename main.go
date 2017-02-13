@@ -31,6 +31,11 @@ func main(){
 		logrus.Fatal("no such net device %s" , err.Error())
 	}
 
+	vlanDev , ok := link.(*netlink.Vlan)
+	if !ok {
+		logrus.Fatalf("%s is a vlan dev" , "eth0")
+	}
+
 	opts := make(map[string]interface{})
 
 	h := network.NewHandler(drivers.NewDriver("vlan" , store ,  dockerclient, mainDev, opts))

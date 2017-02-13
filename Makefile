@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 
 
-TARGET       = omega/omega-netplugins
+TARGET       = omega-netplugins
 PROJECT_NAME = github.com/omega/omega-netplugins
 
 MAJOR_VERSION = $(shell cat VERSION)

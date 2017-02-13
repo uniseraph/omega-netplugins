@@ -1,10 +1,12 @@
 package vlan
 
 import (
-	"github.com/docker/go-plugins-helpers/network"
+
 	"github.com/docker/libkv/store"
 	"github.com/samalba/dockerclient"
 	"github.com/vishvananda/netlink"
+	"sync"
+	"github.com/docker/go-plugins-helpers/network"
 )
 
 func NewDriver(store store.Store , dockerClient *dockerclient.DockerClient , mainDev netlink.Link,opts  map[string]interface{}) network.Driver {
@@ -18,6 +20,7 @@ func NewDriver(store store.Store , dockerClient *dockerclient.DockerClient , mai
 }
 
 type Driver struct {
+	sync.Mutex
 	store			store.Store
 	dockerClient    	*dockerclient.DockerClient
 	mainDev                 netlink.Link
@@ -25,9 +28,21 @@ type Driver struct {
 }
 
 func (d *Driver) GetCapabilities() (*network.CapabilitiesResponse, error) {
-	return nil, nil
+
+	return &network.CapabilitiesResponse{
+		Scope: network.GlobalScope,
+	},nil
+
 }
-func (d *Driver) CreateNetwork(*network.CreateNetworkRequest) error {
+func (d *Driver) CreateNetwork( r *network.CreateNetworkRequest) error {
+
+	Network , err := parseNetworkOption(r.IPv4Data , r.Options)
+
+	if err!=nil{
+		return err
+	}
+
+	Network.NetworkId = r.NetworkID
 	return nil
 }
 func (d *Driver) AllocateNetwork(*network.AllocateNetworkRequest) (*network.AllocateNetworkResponse, error) {
